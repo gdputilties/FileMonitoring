@@ -8,8 +8,6 @@ import RecordDetails
 import SendEmailNotification
 
 
-
-
 def read_csv_file(file_path):
     with open(file_path) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
@@ -32,6 +30,16 @@ def is_valid_line_to_iterate(line):
         return False
 
 
+def parse_ip_address_from_error_line(error_line):
+    start_idx = error_line.index("host=")
+    end_idx = error_line.index("port=")
+    print(start_idx)
+    print(end_idx)
+    ip_address = error_line[start_idx + 5:end_idx]
+    print((ip_address))
+    return ip_address
+
+
 def read_log_file(file_path, event_type):
     old_logs_cleared = False
     proceed_to_next_line = False
@@ -45,7 +53,7 @@ def read_log_file(file_path, event_type):
     last_ran_time = RecordDetails.log_last_running_time
     # Strips the newline character
     err_line_count = 0
-    print("Checking for errors in the lines ")
+    print("Checking for errors in the lines --Start")
     for line in lines:
         valid_line = is_valid_line_to_iterate(line)
         if not valid_line:
@@ -64,6 +72,7 @@ def read_log_file(file_path, event_type):
         if proceed_to_next_line:
             for err_type in errors_types:
                 if err_type in line:
+                    '''
                     # print(err_type + " is in ", line)
                     err_line_count = err_line_count + 1
                     # print("err_date: ",err_date)
@@ -73,10 +82,15 @@ def read_log_file(file_path, event_type):
                             if not old_logs_cleared:
                                 delete_old_logs_from_record_errors_file(file_path)
                                 old_logs_cleared=True
-
+                    '''
+                    err_date = line[0:27]
+                    if event_type == "created":
+                        if not old_logs_cleared:
+                            delete_old_logs_from_record_errors_file(file_path)
+                            old_logs_cleared = True
                         # Recording errors to RecordErrors.txt file
-                        record_errors(line)
-                        SendEmailNotification.notify_errors(file_path, event_type, err_date, line);
+                    record_errors(line)
+                    SendEmailNotification.notify_errors(file_path, event_type, err_date, line);
                     last_ran_time = ""
 
         # print("Line{}: {}".format(count, line.strip()))
@@ -86,6 +100,7 @@ def read_log_file(file_path, event_type):
         err_line_count = 0
 
     file1.close()
+    print("Checking for errors in the lines --End")
 
 
 def get_value_from_properties_file_by_key(attr_type):

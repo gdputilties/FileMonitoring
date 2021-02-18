@@ -9,6 +9,11 @@ from email.mime.text import MIMEText
 
 
 def notify_errors(file_path, event_type, err_date, error_line):
+    ip_address = ""
+    if not error_line =="":
+        if "host=" in error_line:
+            ip_address = InvestigateFile.parse_ip_address_from_error_line(error_line)
+
     subject = InvestigateFile.get_value_from_properties_file_by_key("EMAILSUBJECT")
     # body = InvestigateFile.get_value_from_properties("BODY_MSG")
     body = "<html><body>" + InvestigateFile.get_value_from_properties_file_by_key(
@@ -27,7 +32,7 @@ def notify_errors(file_path, event_type, err_date, error_line):
     message["To"] = ", ".join(to_emails)
     message["Cc"] = ", ".join(cc_emails)
     message["Bcc"] = ", ".join(bcc_emails)
-    message["Subject"] = subject + " " + socket.gethostname();
+    message["Subject"] = subject + " " + ip_address
     # Add body to email
     # message.attach(MIMEText(body, "plain"))
     message.attach(MIMEText(body, "html"))
@@ -42,7 +47,7 @@ def notify_errors(file_path, event_type, err_date, error_line):
             traceback.print_exc()
         try:
             server.sendmail(sender_email, to_emails, mail_body)
-            print("Email sent successfully")
+            print(" Errors Found-Email sent successfully")
         except Exception:
             print("Unable to send email")
             traceback.print_exc()
