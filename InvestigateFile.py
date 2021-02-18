@@ -61,9 +61,9 @@ def read_log_file(file_path, event_type):
                 if err_type in line:
                     # print(err_type + " is in ", line)
                     err_line_count = err_line_count + 1
-                    err_date = line[0:27]
                     # print("err_date: ",err_date)
                     if err_line_count >= 3:
+                        err_date = line[0:27]
                         SendEmailNotification.update_log(file_path, event_type, err_date, line)
                         SendEmailNotification.notify_errors(file_path, event_type, err_date, line);
                     last_ran_time = ""
