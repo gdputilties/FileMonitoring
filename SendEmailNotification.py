@@ -8,32 +8,19 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 
-def update_log(file_path, event_type, date_time, log_error):
-    print("coming update log")
-    record_errors(file_path, event_type, date_time, log_error)
-
-
-def record_errors(file_path, event_type, date_time, log_error):
-    f = open("RecordErrors.txt", "a")
-    # f.write("File Path ", file_path)
-    # f.write(file_path + " is " + event_type + " on " + date_time + " error message " + log_error)
-    f.write(log_error)
-    f.close()
-
-
 def notify_errors(file_path, event_type, err_date, error_line):
-    subject = InvestigateFile.get_value_from_properties("EMAILSUBJECT")
+    subject = InvestigateFile.get_value_from_properties_file_by_key("EMAILSUBJECT")
     # body = InvestigateFile.get_value_from_properties("BODY_MSG")
-    body = "<html><body>" + InvestigateFile.get_value_from_properties(
-        "BODY_MSG") + " <b>" + err_date + "</b> <p style='background-color:yellow;'><b>Errorline:</b> " + error_line + "</p> <br><br>" + InvestigateFile.get_value_from_properties(
+    body = "<html><body>" + InvestigateFile.get_value_from_properties_file_by_key(
+        "BODY_MSG") + " <b>" + err_date + "</b> <p style='background-color:yellow;'><b>Errorline:</b> " + error_line + "</p> <br><br>" + InvestigateFile.get_value_from_properties_file_by_key(
         "FOOTER") + "</body></html> "
-    sender_email = InvestigateFile.get_value_from_properties("SENDEREMAIL")
-    to_emails = InvestigateFile.get_value_from_properties("RECIEVEREMAILS").split(",")
-    cc_emails = InvestigateFile.get_value_from_properties("CC_RECEIVERS").split(",")
-    bcc_emails = InvestigateFile.get_value_from_properties("BCC_RECEIVERS").split(",")
-    password = InvestigateFile.get_value_from_properties("SENDEREMAILPASSWORD")
-    smtp_details = InvestigateFile.get_value_from_properties("SMTP")
-    smtp_port = InvestigateFile.get_value_from_properties("PORT")
+    sender_email = InvestigateFile.get_value_from_properties_file_by_key("SENDEREMAIL")
+    to_emails = InvestigateFile.get_value_from_properties_file_by_key("RECIEVEREMAILS").split(",")
+    cc_emails = InvestigateFile.get_value_from_properties_file_by_key("CC_RECEIVERS").split(",")
+    bcc_emails = InvestigateFile.get_value_from_properties_file_by_key("BCC_RECEIVERS").split(",")
+    password = InvestigateFile.get_value_from_properties_file_by_key("SENDEREMAILPASSWORD")
+    smtp_details = InvestigateFile.get_value_from_properties_file_by_key("SMTP")
+    smtp_port = InvestigateFile.get_value_from_properties_file_by_key("PORT")
     # Create a multipart message and set headers
     message = MIMEMultipart()
     message["From"] = sender_email
