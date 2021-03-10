@@ -8,19 +8,6 @@ import RecordDetails
 import SendEmailNotification
 
 
-def read_csv_file(file_path):
-    with open(file_path) as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        line_count = 0
-        for row in csv_reader:
-            if line_count == 0:
-                print(f'Column names are {", ".join(row)}')
-                line_count += 1
-            else:
-                line_count += 1
-        print(f'Processed {line_count} lines.')
-
-
 def is_valid_line_to_iterate(line):
     date_pattern = "^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])*"
     result = re.search(date_pattern, line)
@@ -42,6 +29,8 @@ def parse_ip_address_from_error_line(error_line):
 
 def read_log_file(file_path, event_type):
     old_logs_cleared = False
+    error_line_start_date_time = ""
+    error_line = ""
     proceed_to_next_line = False
     file1 = open(file_path, 'r')
     lines = file1.readlines()
@@ -72,34 +61,27 @@ def read_log_file(file_path, event_type):
         if proceed_to_next_line:
             for err_type in errors_types:
                 if err_type in line:
-                    '''
-                    # print(err_type + " is in ", line)
-                    err_line_count = err_line_count + 1
-                    # print("err_date: ",err_date)
-                    if err_line_count >= 3:
-                        err_date = line[0:27]
-                        if event_type == "created":
-                            if not old_logs_cleared:
-                                delete_old_logs_from_record_errors_file(file_path)
-                                old_logs_cleared=True
-                    '''
                     err_date = line[0:27]
                     if event_type == "created":
                         if not old_logs_cleared:
                             delete_old_logs_from_record_errors_file(file_path)
                             old_logs_cleared = True
                         # Recording errors to RecordErrors.txt file
+                    if err_line_count == 0:
+                        err_line_count = err_line_count + 1
+                        error_line_start_date_time = line[0:27]
                     record_errors(line)
-                    SendEmailNotification.notify_errors(file_path, event_type, err_date, line);
+                    error_line = error_line + "<BR><BR>" + line
                     last_ran_time = ""
-
         # print("Line{}: {}".format(count, line.strip()))
         last_line = line
     if last_line != "":
         RecordDetails.log_last_running_time = last_line[0:27]
         err_line_count = 0
-
     file1.close()
+    if not error_line == "":
+        err_start_And_end_date = error_line_start_date_time + " and " + RecordDetails.log_last_running_time
+        SendEmailNotification.notify_errors(file_path, event_type, err_date, error_line, err_start_And_end_date);
     print("Checking for errors in the lines --End")
 
 
@@ -134,6 +116,26 @@ def record_errors(log_error):
     f.write(log_error)
     f.close()
 
+
 # print(get_value_from_properties("WatchDIR"))
 # line = input("enter line")
 # print("matched ", is_valid_line_to_iterate(line))
+
+def read_servers():
+    servers = get_value_from_properties_file_by_key("SERVERS")
+    server_list = servers.split(",")
+    for IP_Address in server_list:
+        un_key = IP_Address + "-UN"
+        user_name = get_value_from_properties_file_by_key(un_key)
+        pwd_key = IP_Address + "-PWD"
+        server_pwd = get_value_from_properties_file_by_key(pwd_key)
+        connect_to_server(IP_Address, user_name, server_pwd)
+
+
+def connect_to_server(ip, user_name, pwd):
+    cmd_result = ""
+    send_notification(cmd_result)
+
+
+def send_notification(command_result):
+    pass
