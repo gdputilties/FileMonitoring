@@ -115,27 +115,3 @@ def record_errors(log_error):
     f = open("RecordErrors.txt", "a")
     f.write(log_error)
     f.close()
-
-
-# print(get_value_from_properties("WatchDIR"))
-# line = input("enter line")
-# print("matched ", is_valid_line_to_iterate(line))
-
-def read_servers():
-    servers = get_value_from_properties_file_by_key("SERVERS")
-    server_list = servers.split(",")
-    for IP_Address in server_list:
-        un_key = IP_Address + "-UN"
-        user_name = get_value_from_properties_file_by_key(un_key)
-        pwd_key = IP_Address + "-PWD"
-        server_pwd = get_value_from_properties_file_by_key(pwd_key)
-        connect_to_server(IP_Address, user_name, server_pwd)
-
-
-def connect_to_server(ip, user_name, pwd):
-    cmd_result = ""
-    send_notification(cmd_result)
-
-
-def send_notification(command_result):
-    pass
