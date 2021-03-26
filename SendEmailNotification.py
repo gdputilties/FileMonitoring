@@ -20,6 +20,7 @@ def notify_errors(file_path, event_type, err_date, error_line, err_start_And_end
     password = InvestigateFile.get_value_from_properties_file_by_key("SENDEREMAILPASSWORD")
     smtp_details = InvestigateFile.get_value_from_properties_file_by_key("SMTP")
     smtp_port = InvestigateFile.get_value_from_properties_file_by_key("PORT")
+    recipients = to_emails+cc_emails+bcc_emails
     # Create a multipart message and set headers
     message = MIMEMultipart()
     message["From"] = sender_email
@@ -40,7 +41,7 @@ def notify_errors(file_path, event_type, err_date, error_line, err_start_And_end
             print("Unable to login to smtp server")
             traceback.print_exc()
         try:
-            server.sendmail(sender_email, to_emails, mail_body)
+            server.sendmail(sender_email, recipients, mail_body)
             print(" Errors Found in line: ", error_line, "Email sent successfully")
         except Exception:
             print("Unable to send email")
