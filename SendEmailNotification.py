@@ -8,17 +8,11 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 
-def notify_errors(file_path, event_type, err_date, error_line):
+def notify_errors(file_path, event_type, err_date, error_line, err_start_And_end_date):
     ip_address = ""
-    if not error_line =="":
-        if "host=" in error_line:
-            ip_address = InvestigateFile.parse_ip_address_from_error_line(error_line)
-
     subject = InvestigateFile.get_value_from_properties_file_by_key("EMAILSUBJECT")
     # body = InvestigateFile.get_value_from_properties("BODY_MSG")
-    body = "<html><body>" + InvestigateFile.get_value_from_properties_file_by_key(
-        "BODY_MSG") + " <b>" + err_date + "</b> <p style='background-color:yellow;'><b>Errorline:</b> " + error_line + "</p> <br><br>" + InvestigateFile.get_value_from_properties_file_by_key(
-        "FOOTER") + "</body></html> "
+    body = "<html><body>" + InvestigateFile.get_value_from_properties_file_by_key("BODY_MSG") + " <b>" + err_start_And_end_date + "</b> <p style='background-color:yellow;'><b><u>Error Lines:</u></b>" + error_line + "</p> <br><br>" + InvestigateFile.get_value_from_properties_file_by_key("FOOTER") + "</body></html> "
     sender_email = InvestigateFile.get_value_from_properties_file_by_key("SENDEREMAIL")
     to_emails = InvestigateFile.get_value_from_properties_file_by_key("RECIEVEREMAILS").split(",")
     cc_emails = InvestigateFile.get_value_from_properties_file_by_key("CC_RECEIVERS").split(",")
@@ -32,7 +26,7 @@ def notify_errors(file_path, event_type, err_date, error_line):
     message["To"] = ", ".join(to_emails)
     message["Cc"] = ", ".join(cc_emails)
     message["Bcc"] = ", ".join(bcc_emails)
-    message["Subject"] = subject + " " + ip_address
+    message["Subject"] = subject + " " + socket.gethostname()
     # Add body to email
     # message.attach(MIMEText(body, "plain"))
     message.attach(MIMEText(body, "html"))
@@ -47,7 +41,7 @@ def notify_errors(file_path, event_type, err_date, error_line):
             traceback.print_exc()
         try:
             server.sendmail(sender_email, to_emails, mail_body)
-            print(" Errors Found-Email sent successfully")
+            print(" Errors Found in line: ", error_line, "Email sent successfully")
         except Exception:
             print("Unable to send email")
             traceback.print_exc()
